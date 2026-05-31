@@ -1,0 +1,148 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width,initial-scale=1.0,user-scalable=no,viewport-fit=cover"/>
+  <meta name="apple-mobile-web-app-capable" content="yes"/>
+  <meta name="mobile-web-app-capable" content="yes"/>
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent"/>
+  <title>Hank's Popcorn — Atrapá las Bolsas</title>
+  <link rel="stylesheet" href="style.css"/>
+</head>
+<body>
+
+<!-- ══ PANTALLA 0: CARGA ══════════════════════════ -->
+<div id="screen-loading" class="screen active">
+  <div class="bg-fill"></div>
+  <div class="bg-overlay-dark"></div>
+  <div class="loading-inner">
+    <img src="assets/images/logo.png" class="loading-logo" alt="Hank's Popcorn"/>
+    <div class="loading-bar-track"><div class="loading-bar-fill" id="loadBar"></div></div>
+    <p class="loading-label" id="loadLabel">Cargando…</p>
+  </div>
+</div>
+
+<!-- ══ PANTALLA 1: INICIO ═════════════════════════ -->
+<div id="screen-start" class="screen">
+  <div class="bg-fill"></div>
+  <div class="bg-overlay-start"></div>
+  <canvas class="rings-canvas" id="ringsCanvasStart"></canvas>
+
+  <!-- Botón de sonido -->
+  <button class="sound-btn" id="soundBtnStart" aria-label="Sonido">🔊</button>
+
+  <div class="start-inner">
+    <img src="assets/images/logo.png" class="start-logo" alt="Hank's Popcorn"/>
+    <p class="start-brand-line">HANK'S POPCORN</p>
+    <h1 class="start-headline">ATRAPÁ<br>LAS BOLSAS</h1>
+    <p class="start-desc">
+      Tocá todas las bolsas que puedas<br>
+      en <strong id="txtDuration">30</strong> segundos.<br>
+      Superá los <strong id="txtTarget">300</strong> puntos<br>
+      y ganás <strong id="txtPrize">1 Bolsa de Hank's Popcorn</strong>.
+    </p>
+    <button class="btn-main" id="btnPlay">JUGAR</button>
+  </div>
+
+  <div class="deco-layer" id="decoLayer"></div>
+</div>
+
+<!-- ══ PANTALLA 2: JUEGO ══════════════════════════ -->
+<div id="screen-game" class="screen">
+  <div class="bg-fill"></div>
+  <div class="bg-overlay-game"></div>
+  <canvas class="rings-canvas" id="ringsCanvasGame"></canvas>
+
+  <!-- HUD -->
+  <div class="hud" id="hud">
+    <div class="hud-col">
+      <span class="hud-lbl">PUNTOS</span>
+      <span class="hud-num" id="scoreDisplay">0</span>
+    </div>
+    <div class="hud-col hud-center-col">
+      <div class="timer-wrap">
+        <svg viewBox="0 0 68 68" class="timer-svg">
+          <circle cx="34" cy="34" r="29" class="t-track"/>
+          <circle cx="34" cy="34" r="29" class="t-prog" id="timerRing"/>
+        </svg>
+        <span class="timer-num" id="timerNum">30</span>
+      </div>
+    </div>
+    <div class="hud-col hud-col-right">
+      <span class="hud-lbl">BOLSAS</span>
+      <span class="hud-num" id="caughtDisplay">0</span>
+    </div>
+  </div>
+
+  <!-- Botón de sonido en juego -->
+  <button class="sound-btn sound-btn-game" id="soundBtnGame" aria-label="Sonido">🔊</button>
+
+  <!-- Área de caída -->
+  <div class="fall-area" id="fallArea"></div>
+  <canvas class="vfx-canvas" id="vfxCanvas"></canvas>
+  <div class="pts-layer" id="ptsLayer"></div>
+
+  <!-- Banner Modo Popcorn -->
+  <div class="popcorn-banner" id="popcornBanner">🔥 MODO POPCORN 🔥</div>
+
+  <!-- Countdown -->
+  <div class="countdown-wrap" id="countdownWrap">
+    <span class="countdown-num" id="countdownNum">3</span>
+  </div>
+</div>
+
+<!-- ══ PANTALLA 3: RESULTADO ══════════════════════ -->
+<div id="screen-result" class="screen">
+  <div class="bg-fill"></div>
+  <div class="bg-overlay-result"></div>
+  <canvas class="rings-canvas" id="ringsCanvasResult"></canvas>
+  <div class="confetti-layer" id="confettiLayer"></div>
+
+  <!-- Botón de sonido en resultado -->
+  <button class="sound-btn" id="soundBtnResult" aria-label="Sonido">🔊</button>
+
+  <div class="result-inner">
+    <img src="assets/images/logo.png" class="result-logo" alt="Hank's Popcorn"/>
+
+    <div id="resultWin" class="result-block">
+      <div class="result-emoji">🎉</div>
+      <h2 class="result-title win-color">¡GANASTE!</h2>
+      <div class="prize-card">
+        <span class="prize-icon">🎁</span>
+        <div>
+          <p class="prize-cta">MOSTRÁ ESTA PANTALLA AL PROMOTOR</p>
+          <p class="prize-name" id="prizeNameTxt"></p>
+        </div>
+      </div>
+    </div>
+
+    <div id="resultLose" class="result-block">
+      <div class="result-emoji">🍿</div>
+      <h2 class="result-title lose-color">¡CASI!</h2>
+      <p class="result-lose-sub">Volvé a intentarlo.</p>
+    </div>
+
+    <div class="stats-card">
+      <div class="stat-row">
+        <span class="stat-lbl">PUNTAJE FINAL</span>
+        <span class="stat-val big" id="finalScore">0</span>
+      </div>
+      <hr class="stat-divider"/>
+      <div class="stat-row">
+        <span class="stat-lbl">BOLSAS ATRAPADAS</span>
+        <span class="stat-val" id="finalCaught">0</span>
+      </div>
+      <div class="stat-row">
+        <span class="stat-lbl">BOLSAS ESPECIALES</span>
+        <span class="stat-val gold-val" id="finalSpecial">0</span>
+      </div>
+    </div>
+
+    <button class="btn-main btn-retry" id="btnRetry">JUGAR OTRA VEZ</button>
+  </div>
+</div>
+
+<script src="config.js"></script>
+<script src="game.js"></script>
+</body>
+</html>
